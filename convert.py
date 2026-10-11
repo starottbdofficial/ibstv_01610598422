@@ -30,7 +30,7 @@ CATEGORY_KEYWORDS = {
         "hbo", "star movies", "wb", "zee bangla cinema", "jalsha movies"
     ],
     "BANGLADESH": [
-        "somoy", "jamuna", "ekattor", "independent", "channel i", "ati", "atn bangla", 
+        "somoy", "jamuna", "ekattor", "independent", "channel i", "atn bangla", 
         "atn news", "ntv", "rtv", "deepto", "bangla vision", "boishakhi", "dbc", "news24", 
         "maasranga", "desh tv", "channel 24", "bijoy tv", "nagorik", "saatv", "titas"
     ],
@@ -53,11 +53,10 @@ def categorize_channel(channel_name, original_group=""):
     # Priority check for explicit matches
     for category, keywords in CATEGORY_KEYWORDS.items():
         for keyword in keywords:
-            # Match whole words or standard substring boundaries
             if re.search(r'\b' + re.escape(keyword) + r'\b', text_to_check):
                 return category
 
-    # Secondary check without word boundaries for custom channel tags
+    # Secondary check without word boundaries
     for category, keywords in CATEGORY_KEYWORDS.items():
         for keyword in keywords:
             if keyword in text_to_check:
@@ -78,10 +77,8 @@ def fetch_json_data(url):
 
 def generate_m3u(data):
     """M3U প্লেলিস্ট তৈরি করার ফাংশন"""
-    # বর্তমান তারিখ এবং সময় (UTC)
     current_time = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     
-    # প্লেলিস্টের হেডার অংশ
     m3u_header = f"""#EXTM3U
 # Playlist update dates and times: {current_time} UTC
 # Playlist owner: STAR OTT BD
@@ -92,7 +89,6 @@ def generate_m3u(data):
     
     m3u_content = m3u_header
 
-    # JSON স্ট্রাকচার অনুযায়ী চ্যানেল কনভার্ট করা
     channels = []
     if isinstance(data, list):
         channels = data
@@ -110,7 +106,6 @@ def generate_m3u(data):
         group = categorize_channel(name, original_group)
 
         if url:
-            # M3U ট্যাগ তৈরি
             extinf = f'#EXTINF:-1 tvg-logo="{logo}" group-title="{group}", {name}\n'
             if user_agent:
                 extinf += f'#EXTVLCOPT:http-user-agent={user_agent}\n'
@@ -127,7 +122,6 @@ def main():
         print("Categorizing channels and generating M3U playlist...")
         m3u_text = generate_m3u(json_data)
         
-        # ফাইল সেভ করা
         with open(OUTPUT_M3U, "w", encoding="utf-8") as f:
             f.write(m3u_text)
         print(f"Successfully updated {OUTPUT_M3U} with custom categories!")
@@ -136,4 +130,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
